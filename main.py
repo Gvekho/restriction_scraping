@@ -102,7 +102,7 @@ if st.button("Process"):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
             return fin_df.to_csv().encode('utf-8')
 
-        csv = convert_df(my_large_df)
+        csv = convert_df(fin_df)
 
         # Button to download CSV
         st.download_button("Download CSV", data=csv, file_name="data.csv", mime='text/csv',)
