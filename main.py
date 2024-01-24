@@ -99,7 +99,7 @@ if st.button("Process"):
         st.write(fin_df)
 
         # Button to download CSV
-        st.button("Download CSV", on_click=fin_df.to_csv, args=['fin_df.csv', index=False])
+        st.button("Download CSV", on_click=fin_df.to_csv)
 
     else:
         st.write("Failed to retrieve the page. Please check the URL.")
