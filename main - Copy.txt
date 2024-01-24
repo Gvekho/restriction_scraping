@@ -1,0 +1,105 @@
+import streamlit as st
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from lxml import html
+import re
+from itertools import chain, permutations
+
+def get_data_from_url(url):
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        # Parse the HTML content of the page using lxml
+        tree = html.fromstring(response.content)
+
+        # Define the XPath to find the table within tbody
+        xpath = '//*[@id="anx_1"]/table[1]'
+
+        # Find the table using XPath
+        table = tree.xpath(xpath)
+
+        # Check if the table is found
+        if table:
+            # Extract data from the table
+            rows = table[0].xpath('.//tr')
+
+            # Create lists to store data
+            data = []
+            for row in rows:
+                columns = row.xpath('.//th|td')
+                data.append([col.text_content().strip() for col in columns])
+
+            # Create a DataFrame from the data
+            df = pd.DataFrame(data)
+            return df
+
+    return None
+
+# Streamlit App
+st.title("Web Scraping and DataFrame Manipulation App")
+
+# Input for URL
+url = st.text_input("Enter URL:", 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202400380')
+
+# Button to trigger the process
+if st.button("Process"):
+    df = get_data_from_url(url)
+
+    if df is not None:
+        st.write("Data Extracted:")
+        st.write(df)
+
+        # DataFrame Manipulation
+        df.columns = ['Num', 'Name', 'Identifying information', 'Reasons', 'Date of listing']
+        stopword = 'Name'
+        stop_column = 'Name'
+
+        # Find the index where the stopword is first encountered
+        stop_index = df.index[df[stop_column] == stopword].tolist()
+
+        if stop_index:
+            df = df.iloc[stop_index[0] + 1:]
+        df = df[['Name', 'Identifying information']]
+
+        date_pattern = r'(\d{1,2}\.\d{1,2}\.\d{4})|\b(\d{4})\b'
+
+        df['Date'] = df['Identifying information'].apply(
+            lambda x: re.search(date_pattern, x).group(0) if re.search(date_pattern, x) else None)
+        df.drop('Identifying information', inplace=True, axis=1)
+
+        df[['Name', 'AKA']] = df['Name'].str.split('\n', expand=True)
+        df['AKA'] = df['AKA'].astype(str).str.replace('(a.k.a. ', '').str.replace(')', '')
+
+        aka = df[['AKA', 'Date']][df['AKA'] != 'None']
+        aka.columns = ['Name', 'Date']
+
+        full = pd.concat([df[['Name', 'Date']], aka], ignore_index=True)
+
+        # Function to generate all variations of a name
+        def generate_name_variations(name):
+            parts = name.split()
+            return list(chain.from_iterable(permutations(parts, r) for r in range(1, len(parts) + 1)))
+
+        # Create a list to store the rows of the new DataFrame
+        new_rows = []
+
+        # Iterate over each row in the original DataFrame
+        for _, row in full.iterrows():
+            name_variations = generate_name_variations(row['Name'])
+            for variation in name_variations:
+                new_rows.append({'Name': row['Name'], 'Name_Variations': ' '.join(variation)})
+
+        # Create a new DataFrame from the list of rows
+        new_df = pd.DataFrame(new_rows)
+
+        fin_df = new_df.merge(full, on='Name', how='left')
+
+        st.write("Final DataFrame:")
+        st.write(fin_df)
+
+        # Button to download CSV
+        st.button("Download CSV", on_click=fin_df.to_csv, args=['fin_df.csv', index=False])
+
+    else:
+        st.write("Failed to retrieve the page. Please check the URL.")
