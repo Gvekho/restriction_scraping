@@ -100,7 +100,7 @@ if st.button("Process"):
         @st.cache
         def convert_df(fin_df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
-            return fin_df.to_csv().encode('utf-8')
+            return fin_df.to_csv(index=False).encode('utf-8')
 
         csv = convert_df(fin_df)
 
