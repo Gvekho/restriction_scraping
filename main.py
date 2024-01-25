@@ -127,21 +127,24 @@ if st.button("Process"):
         persons = data_manipulation(df_1)
         entity = data_manipulation(df_2)
 
-        # Display DataFrames side by side
-        col1, col2 = st.columns(2)
-        with col1:
-            st.write("EU Persons Restrictions:")
-            st.write(persons)
 
-        with col2:
-            st.write("EU Entity Restrictions:")
-            st.write(entity)
 
         # Download buttons for Excel files
         xlsx_1 = to_excel(persons)
         xlsx_2 = to_excel(entity)
 
         now = datetime.now(pytz.timezone('Asia/Tbilisi')).strftime('%d_%m_%Y_%H_%M_%S')
+
+        # Display DataFrames side by side
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("EU Persons Restrictions:")
+            #st.write(persons)
+
+        with col2:
+            st.write("EU Entity Restrictions:")
+            #st.write(entity)
+
 
         col1.download_button(
             label="Download EU Persons Excel",
@@ -156,6 +159,14 @@ if st.button("Process"):
             file_name=f"EU_entity_restrictions_{now}.xlsx",
             mime='application/vnd.ms-excel'
         )
+
+        with col1:
+            st.write(persons)
+
+        with col2:
+            st.write(entity)
+
+        
 
     else:
         st.write("Failed to retrieve one or both pages. Please check the URL.")
