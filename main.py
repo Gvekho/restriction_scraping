@@ -5,6 +5,8 @@ from lxml import html
 import re
 from itertools import chain, permutations
 import io
+from io import BytesIO
+#from pyxlsb import open_workbook as open_xlsb
 
 buffer = io.BytesIO()
 
@@ -101,15 +103,30 @@ if st.button("Process"):
         st.write(fin_df)
 
         @st.cache
-        def convert_df(df):
-            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-            # IMPORTANT: Cache the conversion to prevent computation on every rerun
-                return df.to_excel(Writer,sheet_name='Sheet1', index=False)#.encode('utf-8')
 
-        xlsx = convert_df(fin_df)
+        def to_excel(df):
+            output = BytesIO()
+            writer = pd.ExcelWriter(output, engine='xlsxwriter')
+            df.to_excel(writer, index=False, sheet_name='Sheet1')
+            workbook = writer.book
+            worksheet = writer.sheets['Sheet1']
+            format1 = workbook.add_format({'num_format': '0.00'}) 
+            worksheet.set_column('A:A', None, format1)  
+            writer.save()
+            processed_data = output.getvalue()
+            return processed_data
+
+
+
+        #def convert_df(df):
+        #    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            # IMPORTANT: Cache the conversion to prevent computation on every rerun
+        #        return df.to_excel(Writer,sheet_name='Sheet1', index=False)#.encode('utf-8')
+
+        xlsx = to_excel(fin_df)
 
         # Button to download CSV
-        st.download_button("Download CSV", data=xlsx, file_name="data.xlsx", mime='application/vnd.ms-excel',)
+        st.download_button(label = "Download EU Excel", data=xlsx, file_name="data.xlsx", mime='application/vnd.ms-excel',)
 
     else:
         st.write("Failed to retrieve the page. Please check the URL.")
