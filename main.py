@@ -4,6 +4,9 @@ import requests
 from lxml import html
 import re
 from itertools import chain, permutations
+import io
+
+buffer = io.BytesIO()
 
 def get_data_from_url(url):
     response = requests.get(url)
@@ -99,8 +102,9 @@ if st.button("Process"):
 
         @st.cache
         def convert_df(df):
+            with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
-            return df.to_excel(sheet_name='Sheet1', index=False)#.encode('utf-8')
+                return df.to_excel(Writer,sheet_name='Sheet1', index=False)#.encode('utf-8')
 
         xlsx = convert_df(fin_df)
 
