@@ -146,7 +146,7 @@ if st.button("Process"):
         now = datetime.now(pytz.timezone('Asia/Tbilisi')).strftime('%d_%m_%Y_%H_%M_%S')
 
         # Button to download CSV
-        st.download_button(label = "Download EU Excel", data=xlsx_1, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
+        st.download_button(label = "Download EU Persons Excel", data=xlsx_1, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
 
     else:
         st.write("Failed to retrieve the page. Please check the URL.")
@@ -175,7 +175,7 @@ if st.button("Process"):
         now = datetime.now(pytz.timezone('Asia/Tbilisi')).strftime('%d_%m_%Y_%H_%M_%S')
 
         # Button to download CSV
-        st.download_button(label = "Download EU Excel", data=xlsx_2, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
+        st.download_button(label = "Download EU Entity Excel", data=xlsx_2, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
 
     else:
         st.write("Failed to retrieve the page. Please check the URL.")
