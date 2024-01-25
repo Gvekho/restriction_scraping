@@ -128,7 +128,7 @@ if st.button("Process"):
         entity = data_manipulation(df_2)
 
         # Display DataFrames side by side
-        col1, col2 = st.beta_columns(2)
+        col1, col2 = st.columns(2)
         with col1:
             st.write("EU Persons Restrictions:")
             st.write(persons)
