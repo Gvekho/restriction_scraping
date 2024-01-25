@@ -1,3 +1,4 @@
+import datetime
 import streamlit as st
 import pandas as pd
 import requests
@@ -126,8 +127,10 @@ if st.button("Process"):
 
         xlsx = to_excel(fin_df)
 
+        now = datetime.now().strftime('%d_%m_%Y_%H_%M_%S')
+
         # Button to download CSV
-        st.download_button(label = "Download EU Excel", data=xlsx, file_name="data.xlsx", mime='application/vnd.ms-excel',)
+        st.download_button(label = "Download EU Excel", data=xlsx, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
 
     else:
         st.write("Failed to retrieve the page. Please check the URL.")
