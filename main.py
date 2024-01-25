@@ -122,63 +122,43 @@ if st.button("Process"):
     df_1 = get_data_from_url(url,1)
     df_2 = get_data_from_url(url,2)
 
-    if df_1 is not None:
-        #st.write("Data Extracted:")
-        #st.write(df)
-
+    if df_1 is not None and df_2 is not None:
         # DataFrame Manipulation
-
         persons = data_manipulation(df_1)
-
-        st.write("EU Persons Restricrions:")
-        st.write(persons)
-
-        #@st.cache
-
-
-        #def convert_df(df):
-        #    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-            # IMPORTANT: Cache the conversion to prevent computation on every rerun
-        #        return df.to_excel(Writer,sheet_name='Sheet1', index=False)#.encode('utf-8')
-
-        xlsx_1 = to_excel(persons)
-
-        now = datetime.now(pytz.timezone('Asia/Tbilisi')).strftime('%d_%m_%Y_%H_%M_%S')
-
-        # Button to download CSV
-        st.download_button(label = "Download EU Persons Excel", data=xlsx_1, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
-
-    else:
-        st.write("Failed to retrieve the page. Please check the URL.")
-
-
-    if df_2 is not None:
-        #st.write("Data Extracted:")
-        #st.write(df)
-
-        # DataFrame Manipulation
         entity = data_manipulation(df_2)
 
-        st.write("EU Entity Restricrions:")
-        st.write(entity)
+        # Display DataFrames side by side
+        col1, col2 = st.beta_columns(2)
+        with col1:
+            st.write("EU Persons Restrictions:")
+            st.write(persons)
 
-        #@st.cache
+        with col2:
+            st.write("EU Entity Restrictions:")
+            st.write(entity)
 
-
-        #def convert_df(df):
-        #    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-            # IMPORTANT: Cache the conversion to prevent computation on every rerun
-        #        return df.to_excel(Writer,sheet_name='Sheet1', index=False)#.encode('utf-8')
-
+        # Download buttons for Excel files
+        xlsx_1 = to_excel(persons)
         xlsx_2 = to_excel(entity)
 
         now = datetime.now(pytz.timezone('Asia/Tbilisi')).strftime('%d_%m_%Y_%H_%M_%S')
 
-        # Button to download CSV
-        st.download_button(label = "Download EU Entity Excel", data=xlsx_2, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
+        col1.download_button(
+            label="Download EU Persons Excel",
+            data=xlsx_1,
+            file_name=f"EU_persons_restrictions_{now}.xlsx",
+            mime='application/vnd.ms-excel'
+        )
+
+        col2.download_button(
+            label="Download EU Entity Excel",
+            data=xlsx_2,
+            file_name=f"EU_entity_restrictions_{now}.xlsx",
+            mime='application/vnd.ms-excel'
+        )
 
     else:
-        st.write("Failed to retrieve the page. Please check the URL.")
+        st.write("Failed to retrieve one or both pages. Please check the URL.")
 
 
     
