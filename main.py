@@ -79,6 +79,7 @@ if st.button("Process"):
         aka.columns = ['Name', 'Date']
 
         full = pd.concat([df[['Name', 'Date']], aka], ignore_index=True)
+        full['Name'] = full['Name'].apply(lambda x: x.str.strip())
 
         # Function to generate all variations of a name
         def generate_name_variations(name):
