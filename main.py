@@ -8,6 +8,7 @@ from itertools import chain, permutations
 import io
 from io import BytesIO
 from datetime import datetime, timedelta
+import pytz
 #from pyxlsb import open_workbook as open_xlsb
 
 buffer = io.BytesIO()
@@ -128,7 +129,7 @@ if st.button("Process"):
 
         xlsx = to_excel(fin_df)
 
-        now = datetime.now().strftime('%d_%m_%Y_%H_%M_%S')
+        now = datetime.now(pytz.timezone('Asia/Tbilisi')).strftime('%d_%m_%Y_%H_%M_%S')
 
         # Button to download CSV
         st.download_button(label = "Download EU Excel", data=xlsx, file_name=f"EU_restrictions_{now}.xlsx", mime='application/vnd.ms-excel',)
