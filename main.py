@@ -100,12 +100,12 @@ if st.button("Process"):
         @st.cache
         def convert_df(df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
-            return df.to_excel(index=False)#.encode('utf-8')
+            return df.to_excel(sheet_name='Sheet1', index=False)#.encode('utf-8')
 
         xlsx = convert_df(fin_df)
 
         # Button to download CSV
-        st.download_button("Download CSV", data=xlsx, file_name="data.xlsx", mime='xlsx',)
+        st.download_button("Download CSV", data=xlsx, file_name="data.xlsx", mime='application/vnd.ms-excel',)
 
     else:
         st.write("Failed to retrieve the page. Please check the URL.")
