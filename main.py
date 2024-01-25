@@ -36,7 +36,7 @@ def get_data_from_url(url):
     return None
 
 # Streamlit App
-st.title("Web Scraping and DataFrame Manipulation App")
+st.title("EU and USA restricrions data scraping")
 
 # Input for URL
 url = st.text_input("Enter URL:", 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202400380')
@@ -46,8 +46,8 @@ if st.button("Process"):
     df = get_data_from_url(url)
 
     if df is not None:
-        st.write("Data Extracted:")
-        st.write(df)
+        #st.write("Data Extracted:")
+        #st.write(df)
 
         # DataFrame Manipulation
         df.columns = ['Num', 'Name', 'Identifying information', 'Reasons', 'Date of listing']
@@ -94,18 +94,18 @@ if st.button("Process"):
 
         fin_df = new_df.merge(full, on='Name', how='left')
 
-        st.write("Final DataFrame:")
+        st.write("EU Restricrions:")
         st.write(fin_df)
 
         @st.cache
-        def convert_df(fin_df):
+        def convert_df(df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
-            return fin_df.to_csv(index=False).encode('utf-8')
+            return df.to_excel(index=False)#.encode('utf-8')
 
-        csv = convert_df(fin_df)
+        xlsx = convert_df(fin_df)
 
         # Button to download CSV
-        st.download_button("Download CSV", data=csv, file_name="data.csv", mime='text/csv',)
+        st.download_button("Download CSV", data=xlsx, file_name="data.xlsx", mime='xlsx',)
 
     else:
         st.write("Failed to retrieve the page. Please check the URL.")
