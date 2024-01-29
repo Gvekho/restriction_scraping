@@ -339,33 +339,6 @@ if st.button("Process"):
             st.write(entity)
 
 
-        #col1, col2 = st.columns(2)
-        with col1:
-            st.write("USA Persons Restrictions:")
-
-
-        with col2:
-            st.write("USA Entity Restrictions:")
-
-        col1.download_button(
-            label="Download USA Persons Excel",
-            data=xlsx_3,
-            file_name=f"USA_persons_restrictions_{now}.xlsx",
-            mime='application/vnd.ms-excel'
-        )
-
-        col2.download_button(
-            label="Download USA Entity Excel",
-            data=xlsx_4,
-            file_name=f"USA_entity_restrictions_{now}.xlsx",
-            mime='application/vnd.ms-excel'
-        )
-
-        with col1:
-            st.write(persons)
-
-        with col2:
-            st.write(entity)
 
 
         
