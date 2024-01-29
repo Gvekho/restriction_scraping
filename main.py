@@ -277,14 +277,7 @@ if st.button("Process"):
         names_df3  = expand_list_column(df3,'All Names',['Full Name','Surname'])
         individuals_us = generate_name_all_variations(names_df3,'All Names')
 
-        df4 = remove_rows_by_text(df_4, 'RSS Feed Validator')
-        add_surname_column(df4)
-        add_full_name_column(df4)
-        add_surname_to_column(df4)
-        df4['All Names'] = df4['All Names'].astype(str).str.replace("'", "")
-        process_all_names_column(df4)
-        names_df4  = expand_list_column(df4,'All Names',['Full Name','Surname'])
-        entites_us = generate_name_all_variations(names_df4,'All Names')
+
 
 
 
