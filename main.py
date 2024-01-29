@@ -277,7 +277,7 @@ if st.button("Process"):
         names_df3  = expand_list_column(df3,'All Names',['Full Name','Surname'])
         individuals_us = generate_name_all_variations(names_df3,'All Names')
 
-        #df4 = remove_rows_by_text(df_4, 'RSS Feed Validator')
+        df4 = remove_rows_by_text(df_4, 'RSS Feed Validator')
         add_surname_column(df4)
         add_full_name_column(df4)
         add_surname_to_column(df4)
@@ -292,6 +292,8 @@ if st.button("Process"):
         # Download buttons for Excel files
         xlsx_1 = to_excel(persons)
         xlsx_2 = to_excel(entity)
+
+        xlsx_3 = to_excel(individuals_us)
 
 
 
@@ -327,6 +329,19 @@ if st.button("Process"):
 
         with col2:
             st.write(entity)
+
+        with col1:
+            st.write("USA Persons Restrictions:")
+
+        col1.download_button(
+            label="Download USA Persons Excel",
+            data=xlsx_3,
+            file_name=f"USA_persons_restrictions_{now}.xlsx",
+            mime='application/vnd.ms-excel'
+        )
+
+        with col1:
+            st.write(individuals_us)
 
 
 
