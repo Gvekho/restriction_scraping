@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import requests
 from lxml import html
-from beautifulsoup4 import BeautifulSoup
+from bs4 import BeautifulSoup
 import re
 from itertools import chain, permutations
 import io
