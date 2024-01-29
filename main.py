@@ -268,32 +268,7 @@ if st.button("Process"):
         persons = data_manipulation(df_1)
         entity = data_manipulation(df_2)
 
-        df3 = remove_rows_by_text(df_3, 'RSS Feed Validator')
-        add_surname_column(df3)
-        add_full_name_column(df3)
-        add_surname_to_column(df3)
-        df3['All Names'] = df3['All Names'].astype(str).str.replace("'", "")
-        process_all_names_column(df3)
-        names_df3  = expand_list_column(df3,'All Names',['Full Name','Surname'])
-        individuals_us = generate_name_all_variations(names_df3,'All Names')
 
-        df4 = remove_rows_by_text(df_4, 'RSS Feed Validator')
-        add_surname_column(df4)
-        add_full_name_column(df4)
-        add_surname_to_column(df4)
-        df4['All Names'] = df4['All Names'].astype(str).str.replace("'", "")
-        process_all_names_column(df4)
-        names_df4  = expand_list_column(df4,'All Names',['Full Name','Surname'])
-        entites_us = generate_name_all_variations(names_df4,'All Names')
-
-        df5 = remove_rows_by_text(df_5, 'RSS Feed Validator')
-        add_surname_column(df5)
-        add_full_name_column(df5)
-        add_surname_to_column(df5)
-        df5['All Names'] = df5['All Names'].astype(str).str.replace("'", "")
-        process_all_names_column(df5)
-        names_df5  = expand_list_column(df5,'All Names',['Full Name','Surname'])
-        vessels_us = generate_name_all_variations(names_df5,'All Names')
 
 
 
@@ -301,9 +276,7 @@ if st.button("Process"):
         xlsx_1 = to_excel(persons)
         xlsx_2 = to_excel(entity)
 
-        xlsx_3 = to_excel(individuals_us)
-        xlsx_4 = to_excel(entites_us)
-        xlsx_5 = to_excel(vessels_us)
+
 
         now = datetime.now(pytz.timezone('Asia/Tbilisi')).strftime('%d_%m_%Y_%H_%M_%S')
 
