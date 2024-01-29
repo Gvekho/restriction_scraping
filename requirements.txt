@@ -4,3 +4,4 @@ requests==2.31.0
 lxml==4.9.3
 xlsxwriter==3.0.3
 pytz==2023.3
+beautifulsoup4==4.12.3
