@@ -243,6 +243,124 @@ def generate_name_all_variations(df, column_name):
     return new_df
 
 
+def extract_ent_name(df):
+    # Check if the 'Text' column exists in the DataFrame
+    if 'Text' not in df.columns:
+        raise ValueError("The DataFrame must have a 'Text' column.")
+
+    # Extracting entity name based on the provided format
+    df['Name'] = df['Text'].str.extract(r'^([^,(]+)', expand=False)
+
+
+def process_ent_name(df):
+    # Check if the 'Name' column exists in the DataFrame
+    if 'Name' not in df.columns:
+        raise ValueError("The DataFrame must have a 'Name' column.")
+
+    # Remove "LLC" or "LTD" from the 'Name' column if present, else write an empty string
+    df['Processed_Name'] = df['Name'].apply(lambda x: x.replace('LLC', '').replace('LTD', '').strip() if pd.notnull(x) and ('LLC' in x or 'LTD' in x) else '')
+
+# def extract_akas(df):
+#     # Check if the 'Text' column exists in the DataFrame
+#     if 'Text' not in df.columns:
+#         raise ValueError("The DataFrame must have a 'Text' column.")
+
+#     # Extracting words after "a.k.a." and returning them in a list
+#     df['AKA'] = df['Text'].str.extractall(r'a\.k\.a\.\s*["\']([^"\']+)["\']').groupby(level=0)[0].apply(list)
+
+
+def extract_akas(df):
+    # Function to extract AKA names from the 'Text' column
+    def extract_aka_names(text):
+        aka_matches = re.findall(r'\(a\.k\.a\..*?[\s,;]\s*(.*?)(?:\)|,|;)', text)
+        return [aka.strip().replace('"','') for aka in aka_matches]
+
+    # Apply the function to the 'Text' column and create a new 'AKA' column
+    df['AKA'] = df['Text'].apply(extract_aka_names)
+
+    return df
+
+
+def combine_names(df):
+    combined_names = []
+
+    for index, row in df.iterrows():
+        result = []
+
+        # Check if the 'AKA' column has a value, and append it to the result list
+        if isinstance(row['AKA'], list):
+            result.extend(row['AKA'])
+
+        # Check if the 'Name' column has a value, and append it to the result list
+        if isinstance(row['Name'], str):
+            result.append(row['Name'])
+
+        # Check if the 'Processed_Name' column has a value, and append it to the result list
+        if isinstance(row['Processed_Name'], str):
+            result.append(row['Processed_Name'])
+
+        combined_names.append(result)
+
+    df['All_Names'] = combined_names
+
+
+
+def extract_numbers_from_column(df):
+    # Define the regular expression pattern
+    pattern = r'Number (\d+)|\((\w+)\) (\d+)'
+
+    # Extract numbers from the specified column
+    def extract_numbers(text):
+        matches = re.findall(pattern, text)
+        extracted_numbers = []
+        for match in matches:
+            if match[0]:
+                extracted_numbers.append(int(match[0]))
+            elif match[2]:
+                extracted_numbers.append(int(match[2]))
+        return extracted_numbers
+
+    # Apply the function to the specified column
+    df['Register Number'] = df['Text'].apply(extract_numbers)
+
+    return df
+
+
+def extract_Identification_numbers(df):
+    # Define the regular expression pattern
+    pattern = r'IMO (\d+)|\((\w+)\) (\d+)'
+
+    # Extract numbers from the specified column
+    def extract_numbers(text):
+        matches = re.findall(pattern, text)
+        extracted_numbers = []
+        for match in matches:
+            if match[0]:
+                extracted_numbers.append(int(match[0]))
+            elif match[2]:
+                extracted_numbers.append(int(match[2]))
+        return extracted_numbers
+
+    # Apply the function to the specified column
+    df['Register Number'] = df['Text'].apply(extract_numbers)
+
+    return df
+
+
+
+def expand_Number(df):
+    # Explode the "Register Number" column
+    df_expanded = df.explode('Register Number')
+
+    return df_expanded
+
+
+def expand_Names(df):
+    # Explode the "Register Number" column
+    df_expanded = df.explode('All_Names')
+
+    return df_expanded
+
 
 
 
@@ -278,6 +396,28 @@ if st.button("Process"):
         individuals_us = generate_name_all_variations(names_df3,'All Names')
 
 
+        extract_ent_name(df_4)
+        process_ent_name(df_4)
+        extract_akas(df_4)
+        combine_names(df_4)
+        extract_numbers_from_column(df_4)
+        ex_df4 = expand_Number(df_4)
+        ex_df4 = expand_Names(ex_df4)
+        fin_df4 = ex_df4[['All_Names','Register Number']]
+        fin_df4.dropna(inplace=True)
+        fin_df4 = fin_df4[fin_df4['All_Names'] != ""]
+
+
+        extract_ent_name(df_5)
+        process_ent_name(df_5)
+        extract_akas(df_5)
+        combine_names(df_5)
+        extract_Identification_numbers(df_5)
+        ex_df5 = expand_Number(df_5)
+        ex_df5 = expand_Names(ex_df5)
+        fin_df5 = ex_df5[['All_Names','Register Number']]
+        fin_df5.dropna(inplace=True)
+        fin_df5 = fin_df5[fin_df5['All_Names'] != ""]
 
 
 
@@ -287,6 +427,8 @@ if st.button("Process"):
         xlsx_2 = to_excel(entity)
 
         xlsx_3 = to_excel(individuals_us)
+        xlsx_4 = to_excel(fin_df4)
+        xlsx_5 = to_excel(fin_df5)
 
 
 
@@ -326,6 +468,9 @@ if st.button("Process"):
         with col1:
             st.write("USA Persons Restrictions:")
 
+        with col2:
+            st.write("USA Entity Restrictions:")
+
         col1.download_button(
             label="Download USA Persons Excel",
             data=xlsx_3,
@@ -335,6 +480,34 @@ if st.button("Process"):
 
         with col1:
             st.write(individuals_us)
+
+        col2.download_button(
+            label="Download USA Entity Excel",
+            data=xlsx_4,
+            file_name=f"USA_persons_restrictions_{now}.xlsx",
+            mime='application/vnd.ms-excel'
+        )
+
+        with col1:
+            st.write(individuals_us)
+
+        with col2:
+            st.write(fin_df4)
+
+
+        with col1:
+            st.write("USA Vessels Restrictions:")
+
+        col1.download_button(
+            label="Download USA Vessels Excel",
+            data=xlsx_5,
+            file_name=f"USA_persons_restrictions_{now}.xlsx",
+            mime='application/vnd.ms-excel'
+        )
+
+        with col1:
+            st.write(fin_df5)
+
 
 
 
