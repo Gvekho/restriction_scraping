@@ -478,8 +478,6 @@ if st.button("Process"):
             mime='application/vnd.ms-excel'
         )
 
-        with col1:
-            st.write(individuals_us)
 
         col2.download_button(
             label="Download USA Entity Excel",
