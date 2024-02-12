@@ -64,9 +64,9 @@ def data_manipulation(df):
     df.drop('Identifying information', inplace=True, axis=1)
 
     df[['Name', 'AKA']] = df['Name'].str.split('\n', expand=True)
-    df['AKA'] = df['AKA'].astype(str).str.replace('(a.k.a. ', '').str.replace('(a.k.a.', '').str.replace(')', '').str.replace('/', '')
-    df['AKA'] = df['AKA'].astype(str).str.replace('(a.k.a. ', '')
-    df['AKA'] = df['AKA'].astype(str).str.replace('(a.k.a.', '')
+    df['AKA'] = df['AKA'].astype(str).str.replace('(a.k.a ', '').str.replace('(a.k.a.', '').str.replace(')', '').str.replace('/', '')
+    df['AKA'] = df['AKA'].astype(str).str.replace("(a.k.a ", '')
+    df['AKA'] = df['AKA'].astype(str).str.replace("(a.k.a", '')
 
     aka = df[['AKA', 'Date']][df['AKA'] != 'None']
     aka.columns = ['Name', 'Date']
