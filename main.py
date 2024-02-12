@@ -71,6 +71,7 @@ def data_manipulation(df):
 
     full = pd.concat([df[['Name', 'Date']], aka], ignore_index=True)
     full['Name'] = full['Name'].apply(lambda x: x.strip())
+    full['Name'] = full['Name'].astype(str).str.replace('(a.k.a. ', '').str.replace('(a.k.a.', '').str.replace(')', '').str.replace('/', '')
 
         # Function to generate all variations of a name
     def generate_name_variations(name):
