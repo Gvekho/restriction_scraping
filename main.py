@@ -485,8 +485,8 @@ if st.button("Process"):
 
     if df_1 is not None and df_2 is not None:
         # DataFrame Manipulation
-        persons = data_manipulation(df_1)
-        entity = data_manipulation(df_2)
+        persons = data_manipulation_1(df_1)
+        entity = data_manipulation_2(df_2)
 
         df3 = remove_rows_by_text(df_3, 'RSS Feed Validator')
         add_surname_column(df3)
