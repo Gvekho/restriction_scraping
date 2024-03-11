@@ -120,8 +120,8 @@ def get_data_from_url(url,tab):
     return None
 
 
-def extract_entities_eu_2(pattern,text):
-    matches = re.findall(pattern, text)
+def extract_entities_eu_2(pattern_k,text):
+    matches = re.findall(pattern_k, text)
     
     # Remove keywords from the extracted text using a more precise method
     extracted_without_keywords = [re.sub(r'\b' + re.escape(match) + r'\b', '', text).strip() for match in matches]
@@ -184,10 +184,10 @@ def data_manipulation_2(df):
     keywords = ['LLC', 'Limited', 'limited liability company', 'co.', 'public joint stock company', 'PJSC', 
             'Joint stock company', 'company', 'JSC', 'AO', 'OOO', 'FZE', 'LTD']
     
-    pattern_k = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
+    pattern_key = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
 
-    def extract_entities_eu_2(pattern_k,text):
-        matches = re.findall(pattern, text)
+    def extract_entities_eu_2(pattern_k=pattern_key,text):
+        matches = re.findall(pattern_k, text)
         
         # Remove keywords from the extracted text using a more precise method
         extracted_without_keywords = [re.sub(r'\b' + re.escape(match) + r'\b', '', text).strip() for match in matches]
@@ -197,7 +197,7 @@ def data_manipulation_2(df):
         
         return combined_list
 
-    df['Extracted_entities'] = df['Name'].apply(lambda x: extract_entities_eu_2(pattern=pattern, text=x))
+    df['Extracted_entities'] = df['Name'].apply(lambda x: extract_entities_eu_2(pattern=pattern_key, text=x))
 
     #extract_all_names_eu(df)
 
