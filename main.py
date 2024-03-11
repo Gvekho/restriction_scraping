@@ -196,7 +196,7 @@ def data_manipulation_2(df):
     #fin_df = generate_name_all_variations_eu(exp_df,'All_names')
 
 
-    return df
+    return exp_df
 
 
 def to_excel(df):
