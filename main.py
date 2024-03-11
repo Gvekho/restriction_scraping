@@ -120,7 +120,7 @@ def get_data_from_url(url,tab):
     return None
 
 
-def extract_entities_eu_2(text):
+def extract_entities_eu_2(pattern,text):
     matches = re.findall(pattern, text)
     
     # Remove keywords from the extracted text using a more precise method
@@ -186,7 +186,7 @@ def data_manipulation_2(df):
     
     pattern = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
 
-    df['Extracted_entities'] = df['Name'].apply(extract_entities_eu_2)
+    df['Extracted_entities'] = df['Name'].apply(extract_entities_eu_2(pattern=pattern))
 
     #extract_all_names_eu(df)
 
