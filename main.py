@@ -201,7 +201,7 @@ def data_manipulation_2(df):
 
     #extract_all_names_eu(df)
 
-    exp_df = expand_list_column_eu(df,'Extracted_entities',['Date'])
+    exp_df = expand_list_column_eu(df,'Extracted_entities1',['Date'])
 
     #fin_df = generate_name_all_variations_eu(exp_df,'All_names')
 
