@@ -184,24 +184,14 @@ def data_manipulation_2(df):
     keywords = ['LLC', 'Limited', 'limited liability company', 'co.', 'public joint stock company', 'PJSC', 
             'Joint stock company', 'company', 'JSC', 'AO', 'OOO', 'FZE', 'LTD']
     
-    pattern_key = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
+    pattern_key =  r'\b(?:' + '|'.join(keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
 
-    def extract_entities_eu_2(pattern_k,text):
-        matches = re.findall(pattern_k, text)
-        
-        # Remove keywords from the extracted text using a more precise method
-        extracted_without_keywords = [re.sub(r'\b' + re.escape(match) + r'\b', '', text).strip() for match in matches]
-        
-        # Combine the lists
-        combined_list = matches + extracted_without_keywords
-        
-        return combined_list
 
-    df['Extracted_entities1'] = df['Name'].apply(lambda x: extract_entities_eu_2(pattern_k=pattern_key, text=x))
+    df['Extracted_entities'] = df['Name'].apply(lambda x: extract_entities_eu_2(pattern_k=pattern_key, text=x))
 
     #extract_all_names_eu(df)
 
-    exp_df = expand_list_column_eu(df,'Extracted_entities1',['Date'])
+    exp_df = expand_list_column_eu(df,'Extracted_entities',['Date'])
 
     #fin_df = generate_name_all_variations_eu(exp_df,'All_names')
 
