@@ -186,6 +186,17 @@ def data_manipulation_2(df):
     
     pattern = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
 
+    def extract_entities_eu_2(pattern,text):
+        matches = re.findall(pattern, text)
+        
+        # Remove keywords from the extracted text using a more precise method
+        extracted_without_keywords = [re.sub(r'\b' + re.escape(match) + r'\b', '', text).strip() for match in matches]
+        
+        # Combine the lists
+        combined_list = matches + extracted_without_keywords
+        
+        return combined_list
+
     df['Extracted_entities'] = df['Name'].apply(lambda x: extract_entities_eu_2(pattern=pattern, text=x))
 
     #extract_all_names_eu(df)
