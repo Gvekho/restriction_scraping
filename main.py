@@ -184,9 +184,9 @@ def data_manipulation_2(df):
     keywords = ['LLC', 'Limited', 'limited liability company', 'co.', 'public joint stock company', 'PJSC', 
             'Joint stock company', 'company', 'JSC', 'AO', 'OOO', 'FZE', 'LTD']
     
-    pattern = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
+    pattern_k = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
 
-    def extract_entities_eu_2(pattern,text):
+    def extract_entities_eu_2(pattern_k,text):
         matches = re.findall(pattern, text)
         
         # Remove keywords from the extracted text using a more precise method
