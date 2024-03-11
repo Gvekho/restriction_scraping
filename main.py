@@ -14,6 +14,81 @@ import pytz
 
 buffer = io.BytesIO()
 
+
+
+def extract_all_names_eu(df, column_name='Name', new_column_name='All_names'):
+    # Function to extract patterns from a given text
+    def extract_patterns(text):
+        pattern = re.compile(r'\b([A-Za-zА-Яа-яЁё]+ [A-Za-zА-Яа-яЁё]+ [A-Za-zА-Яа-яЁё]+)\b')
+        matches = pattern.findall(text)
+        return matches
+
+    # Apply the extract_patterns function to the specified column and create a new column
+    df[new_column_name] = df[column_name].apply(extract_patterns)
+
+
+def expand_list_column_eu(df, list_column, other_columns):
+    expanded_rows = []
+    for index, row in df.iterrows():
+        names_list = row[list_column]
+        other_values = {col: row[col] for col in other_columns}
+        for name in names_list:
+            row_data = {list_column: name, **other_values}
+            expanded_rows.append(row_data)
+
+    expanded_df = pd.DataFrame(expanded_rows)
+    return expanded_df
+
+
+def generate_name_all_variations_eu(df, column_name):
+
+    def generate_name_variations(name):
+
+        parts = name.split()
+
+        return list(chain.from_iterable(permutations(parts, r) for r in range(1, len(parts) + 1)))
+
+ 
+
+    # Create a list to store the rows of the new DataFrame
+
+    new_rows = []
+
+ 
+
+    # Iterate over each row in the original DataFrame
+
+    for _, row in df.iterrows():
+
+        name_variations = generate_name_variations(row[column_name])
+
+        for variation in name_variations:
+
+            new_rows.append({
+
+                column_name: row[column_name],
+
+                f'{column_name}_Variations': ' '.join(variation),
+
+                'Date': row['Date']  # Assuming 'Third_Column' is the actual name of the third column
+
+            })
+
+ 
+
+    # Create a new DataFrame from the list of rows
+
+    new_df = pd.DataFrame(new_rows).drop('All_names',axis=1)
+
+    return new_df
+
+def expand_Names(df):
+    # Explode the "Register Number" column
+    df_expanded = df.explode('All_names')
+    return df_expanded
+
+
+
 def get_data_from_url(url,tab):
     response = requests.get(url)
 
@@ -44,7 +119,21 @@ def get_data_from_url(url,tab):
 
     return None
 
-def data_manipulation(df):
+
+def extract_entities_eu_2(text):
+    matches = re.findall(pattern, text)
+    
+    # Remove keywords from the extracted text using a more precise method
+    extracted_without_keywords = [re.sub(r'\b' + re.escape(match) + r'\b', '', text).strip() for match in matches]
+    
+    # Combine the lists
+    combined_list = matches + extracted_without_keywords
+    
+    return combined_list
+
+
+
+def data_manipulation_1(df):
 
     df.columns = ['Num', 'Name', 'Identifying information', 'Reasons', 'Date of listing']
     stopword = 'Name'
@@ -63,40 +152,50 @@ def data_manipulation(df):
         lambda x: re.search(date_pattern, x).group(0) if re.search(date_pattern, x) else None)
     df.drop('Identifying information', inplace=True, axis=1)
 
-    df[['Name', 'AKA']] = df['Name'].str.split('\n', expand=True)
-    df['AKA'] = df['AKA'].astype(str).str.replace('(a.k.a ', '').str.replace('(a.k.a.', '').str.replace(')', '').str.replace('/', '')
-    df['AKA'] = df['AKA'].astype(str).str.replace("(a.k.a ", '')
-    df['AKA'] = df['AKA'].astype(str).str.replace("(a.k.a", '')
+    extract_all_names_eu(df)
 
-    aka = df[['AKA', 'Date']][df['AKA'] != 'None']
-    aka.columns = ['Name', 'Date']
+    exp_df = expand_list_column_eu(df,'All_names',['Date'])
 
-    full = pd.concat([df[['Name', 'Date']], aka], ignore_index=True)
-    full['Name'] = full['Name'].apply(lambda x: x.strip())
-    full['Name'] = full['Name'].astype(str).str.replace('(a.k.a. ', '').str.replace('(a.k.a.', '').str.replace(')', '').str.replace('/', '')
-
-        # Function to generate all variations of a name
-    def generate_name_variations(name):
-        parts = name.split()
-        return list(chain.from_iterable(permutations(parts, r) for r in range(1, len(parts) + 1)))
-
-        # Create a list to store the rows of the new DataFrame
-    new_rows = []
-
-        # Iterate over each row in the original DataFrame
-    for _, row in full.iterrows():
-        name_variations = generate_name_variations(row['Name'])
-        for variation in name_variations:
-            new_rows.append({'Name': row['Name'], 'Name_Variations': ' '.join(variation)})
-
-        # Create a new DataFrame from the list of rows
-    new_df = pd.DataFrame(new_rows)
-
-    fin_df = new_df.merge(full, on='Name', how='left')
+    fin_df = generate_name_all_variations_eu(exp_df,'All_names')
 
 
     return fin_df
 
+
+def data_manipulation_2(df):
+
+    df.columns = ['Num', 'Name', 'Identifying information', 'Reasons', 'Date of listing']
+    stopword = 'Name'
+    stop_column = 'Name'
+
+    # Find the index where the stopword is first encountered
+    stop_index = df.index[df[stop_column] == stopword].tolist()
+
+    if stop_index:
+        df = df.iloc[stop_index[0] + 1:]
+    df = df[['Name', 'Identifying information']]
+
+    date_pattern = r'(\d{1,2}\.\d{1,2}\.\d{4})|\b(\d{4})\b'
+
+    df['Date'] = df['Identifying information'].apply(
+        lambda x: re.search(date_pattern, x).group(0) if re.search(date_pattern, x) else None)
+    df.drop('Identifying information', inplace=True, axis=1)
+
+    keywords = ['LLC', 'Limited', 'limited liability company', 'co.', 'public joint stock company', 'PJSC', 
+            'Joint stock company', 'company', 'JSC', 'AO', 'OOO', 'FZE', 'LTD']
+    
+    pattern = r'\b(?:' + '|'.join(re.escape(kw) for kw in keywords) + r')\b.*?(?:(?=\s*[,;()])|$)'
+
+    df['Extracted_entities'] = df['Name'].apply(extract_entities_eu_2)
+
+    #extract_all_names_eu(df)
+
+    exp_df = expand_list_column_eu(df,'Extracted_entities',['Date'])
+
+    #fin_df = generate_name_all_variations_eu(exp_df,'All_names')
+
+
+    return exp_df
 
 
 def to_excel(df):
