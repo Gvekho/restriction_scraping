@@ -197,7 +197,7 @@ def data_manipulation_2(df):
         
         return combined_list
 
-    df['Extracted_entities'] = df['Name'].apply(lambda x: extract_entities_eu_2(pattern_k=pattern_key, text=x))
+    df['Extracted_entities1'] = df['Name'].apply(lambda x: extract_entities_eu_2(pattern_k=pattern_key, text=x))
 
     #extract_all_names_eu(df)
 
