@@ -231,35 +231,57 @@ def get_data_from_usa_url(url):
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
         # Parse the HTML content of the page
-        soup = BeautifulSoup(response.content, "html.parser")
+        soup = BeautifulSoup(response.content, 'html.parser')
 
-        # Find all div elements with class "field__item"
-        target_elements = soup.find_all("div", class_="field__item")
+        # Identifying titles to look for
+        titles = ['The following individuals have been added', 
+                'The following entities have been added', 
+                'The following vessels have been added']
 
-        # Create empty lists to store the text content for each DataFrame
-        paragraphs3_texts = []
-        paragraphs4_texts = []
-        paragraphs5_texts = []
+        # Initialize lists to hold the contents
+        individuals_list, entities_list, vessels_list = [], [], []
 
-        # Iterate through each target element
-        for element in target_elements:
-            p3 = element.find_all("p")[2] if len(element.find_all("p")) >= 3 else None
-            p4 = element.find_all("p")[3] if len(element.find_all("p")) >= 4 else None
-            p5 = element.find_all("p")[4] if len(element.find_all("p")) >= 5 else None
+        # Find all divs with class 'field__item'
+        field_items = soup.find_all('div', class_='field__item')
 
-            if p3:
-                paragraphs3_texts.extend(p3.find_all(text=True))  # Extract all text elements
-            if p4:
-                paragraphs4_texts.extend(p4.find_all(text=True))
-            if p5:
-                paragraphs5_texts.extend(p5.find_all(text=True))
+        # Iterate over each field item to find the correct one
+        for item in field_items:
+            h4s = item.find_all('h4')
+            for h4 in h4s:
+                h4_text = h4.get_text().strip()
 
-        # Create DataFrames with each text element as a separate row
-        df3 = pd.DataFrame(paragraphs3_texts, columns=["Text"])
-        df4 = pd.DataFrame(paragraphs4_texts, columns=["Text"])
-        df5 = pd.DataFrame(paragraphs5_texts, columns=["Text"])
+                # Check if any of the titles is a substring of the h4 text
+                for title in titles:
+                    #print(f'currently checking {title} with {h4_text}')
+                    if title in h4_text:
+                        # Find the next sibling which should be a 'p' tag
+                        next_p = h4.find_next_sibling('p')
+                        if next_p:
+                            content = next_p.get_text().strip()
+                            # Assign content to the corresponding list
+                            if title == titles[0]:  # individuals
+                                individuals_list.append(content)
+                            elif title == titles[1]:  # entities
+                                entities_list.append(content)
+                            elif title == titles[2]:  # vessels
+                                vessels_list.append(content)
 
-        return df3, df4, df5
+        individuals_split_data = []
+        for item in individuals_list:
+            individuals_split_data.extend(item.split("\xa0"))
+        individuals_df = pd.DataFrame(individuals_split_data,columns=['Text'])
+
+        entities_split_data = []
+        for item in entities_list:
+            entities_split_data.extend(item.split("\xa0"))
+        entities_df = pd.DataFrame(entities_split_data,columns=['Text'])
+
+        vessels_split_data = []
+        for item in entities_list:
+            vessels_split_data.extend(item.split("\xa0"))
+        vessels_df = pd.DataFrame(vessels_split_data,columns=['Text'])
+
+        return individuals_df, entities_df, vessels_df
 
     else:
         # If the request was not successful, print an error message
