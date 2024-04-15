@@ -277,7 +277,7 @@ def get_data_from_usa_url(url):
         entities_df = pd.DataFrame(entities_split_data,columns=['Text'])
 
         vessels_split_data = []
-        for item in entities_list:
+        for item in vessels_list:
             vessels_split_data.extend(item.split("\xa0"))
         vessels_df = pd.DataFrame(vessels_split_data,columns=['Text'])
 
